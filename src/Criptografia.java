@@ -10,7 +10,7 @@ public class Criptografia {
         chave = null;
     }
 
-    public SecretKey GeradorChave() throws Exception {
+    public SecretKey geradorChave() throws Exception {
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         keyGen.init(128);
         chave = keyGen.generateKey();
