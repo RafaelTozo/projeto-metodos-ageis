@@ -16,6 +16,8 @@ CREATE TABLE Grupo (
 
 CREATE TABLE Senhas (
                         idSenha INT AUTO_INCREMENT PRIMARY KEY,
+                        nomeAplicacao VARCHAR(255) NOT NULL,
+                        emailLogin VARCHAR(255) NOT NULL
                         senha VARCHAR(255) NOT NULL
 );
 
