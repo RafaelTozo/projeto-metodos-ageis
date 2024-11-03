@@ -14,7 +14,7 @@ public class FuncoesBD {
     public void insereUsuario(String nome, String email, String senha) {
         query = "INSERT INTO Usuario (nome, email, senha) VALUES (?, ?, ?)";
         try {
-            ps = conexao.prepareStatement(query);
+            ps = conexao.getConexao().prepareStatement(query);
             ps.setString(1, nome);
             ps.setString(2, email);
             ps.setString(3, senha);
@@ -30,7 +30,7 @@ public class FuncoesBD {
         String nome = null;
         query = "SELECT nome FROM Usuario WHERE idUsuario = ?";
         try {
-            ps = conexao.prepareStatement(query);
+            ps = conexao.getConexao().prepareStatement(query);
             ps.setInt(1, idUsuario);
             rs = ps.executeQuery();
             if (rs.next()) {
@@ -46,7 +46,7 @@ public class FuncoesBD {
     public void criaGrupo(String nomeGrupo) {
         query = "INSERT INTO Grupo (nome) VALUES (?)";
         try {
-            ps = conexao.prepareStatement(query);
+            ps = conexao.getConexao().prepareStatement(query);
             ps.setString(1, nomeGrupo);
             ps.executeUpdate();
             System.out.println("Grupo criado com sucesso.");
@@ -55,15 +55,20 @@ public class FuncoesBD {
         }
     }
 
-    public void insereSenha(String nomeAplicacao, String emailLogin, String senha) {
+    public void insereSenha(int idUsuario, String nomeAplicacao, String emailLogin, String senha) {
         query = "INSERT INTO Senhas (nomeAplicacao, emailLogin, senha) VALUES (?, ?, ?)";
+        int idSenha = -1;
         try {
-            ps = conexao.prepareStatement(query);
+            ps = conexao.getConexao().prepareStatement(query);
             ps.setString(1, nomeAplicacao);
             ps.setString(2, emailLogin);
             ps.setString(3, senha);
             ps.executeUpdate();
-            System.out.println("Senha inserida com sucesso.");
+            ResultSet generatedKeys = ps.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                idSenha = generatedKeys.getInt(1);
+                adicionaSenhaAoUsuario(idUsuario, idSenha);
+            }
         } catch (SQLException e) {
             System.err.println("Erro ao inserir senha: " + e.getMessage());
         }
@@ -72,7 +77,7 @@ public class FuncoesBD {
     public void adicionaUsuarioAoGrupo(int idUsuario, int idGrupo) {
         query = "INSERT INTO Grupo_Usuario (idGrupo, idUsuario) VALUES (?, ?)";
         try {
-            ps = conexao.prepareStatement(query);
+            ps = conexao.getConexao().prepareStatement(query);
             ps.setInt(1, idGrupo);
             ps.setInt(2, idUsuario);
             ps.executeUpdate();
@@ -85,7 +90,7 @@ public class FuncoesBD {
     public void adicionaSenhaAoUsuario(int idUsuario, int idSenha) {
         query = "INSERT INTO Usuario_Senha (idUsuario, idSenha) VALUES (?, ?)";
         try {
-            ps = conexao.prepareStatement(query);
+            ps = conexao.getConexao().prepareStatement(query);
             ps.setInt(1, idUsuario);
             ps.setInt(2, idSenha);
             ps.executeUpdate();
@@ -98,7 +103,7 @@ public class FuncoesBD {
     public void adicionaSenhaAoGrupo(int idGrupo, int idSenha) {
         query = "INSERT INTO Grupo_Senha (idGrupo, idSenha) VALUES (?, ?)";
         try {
-            ps = conexao.prepareStatement(query);
+            ps = conexao.getConexao().prepareStatement(query);
             ps.setInt(1, idGrupo);
             ps.setInt(2, idSenha);
             ps.executeUpdate();
@@ -108,13 +113,4 @@ public class FuncoesBD {
         }
     }
 
-    public void fecharConexoes() {
-        try {
-            if (rs != null) rs.close();
-            if (ps != null) ps.close();
-            if (conexao != null) conexao.close();
-        } catch (SQLException e) {
-            System.err.println("Erro ao fechar conexões: " + e.getMessage());
-        }
-    }
 }
