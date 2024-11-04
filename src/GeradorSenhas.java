@@ -1,6 +1,6 @@
 import java.security.SecureRandom;
 public class GeradorSenhas {
-    private static final String letrasmin = "abcdefghijklmnopqrstuvwxyz";
+    private static final String letras_min = "abcdefghijklmnopqrstuvwxyz";
     private static final String letras_mai = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final String digitos = "0123456789";
     private static final String caracteres = "!@#$%^&*()-+=<>?/{}[]|";
