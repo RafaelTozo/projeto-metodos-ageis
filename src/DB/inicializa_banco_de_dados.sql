@@ -11,7 +11,7 @@ CREATE TABLE Usuario (
 
 CREATE TABLE Grupo (
                        idGrupo INT AUTO_INCREMENT PRIMARY KEY,
-                       nome VARCHAR(255) NOT NULL
+                       nome VARCHAR(255) UNIQUE NOT NULL
 );
 
 CREATE TABLE Senhas (

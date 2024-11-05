@@ -3,39 +3,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.crypto.SecretKey;
+
 public class TelaLogin {
-    public void funcionamentoTelaLogin () {
-        System.out.println("Tela de Login:");
-        Scanner sc = new Scanner(System.in);
+    public boolean funcionamentoTelaLogin (String email, String senha, SecretKey chave) {
 
-        System.out.println("Digite o seu e-mail: ");
-        String email = sc.nextLine();
+        FuncoesBD funcoesBD = new FuncoesBD();
+        return funcoesBD.retornaUsuario(email, senha, chave);
 
-        if (!validarEmail(email)) {
-            System.out.println("E-mail inválido!");
-            sc.close();
-            return;
-        }
-
-        System.out.println("Digite a sua senha: ");
-        String senha = sc.nextLine();
-
-        if (!validarSenha(senha)) {
-            System.out.println("Senha inválida!");
-            sc.close();
-            return;
-        }
-
-        String senhaHash = hashSenha(senha);
-
-        // Connection connection = conexao
-        // PreparedStatement statement = connection.prepareStatement(sql);
-        // statement.setString(1, nome);
-        // statement.setString(2, email);
-        // statement.setString(3, senhaHash);
-        // statement.executeUpdate();
-
-        sc.close();
     }
 
     public static boolean validarEmail(String email) {

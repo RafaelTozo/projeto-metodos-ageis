@@ -7,11 +7,11 @@ import javax.crypto.SecretKey;
 
 public class TelaCadastro {
     public boolean funcionamentoTelaCadastro (String nome, String email, String senha, SecretKey chave) {
+
         Usuario usuario = new Usuario(nome, email, senha);
         FuncoesBD funcoesBD = new FuncoesBD();
-        funcoesBD.insereUsuario(usuario, chave);
+        return funcoesBD.insereUsuario(usuario, chave);
 
-        return true;
     }
 
     public static boolean validarEmail(String email) {
