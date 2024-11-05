@@ -96,13 +96,13 @@ public class GUICadastro {
                     String senha = new String(passText.getPassword());
                     String senhaConfirm = new String(confText.getPassword());
 
-                    if (!telaCadastro.validarEmail(email)) {
+                    if (!TelaCadastro.validarEmail(email)) {
                         JOptionPane.showMessageDialog(panel, "Email inválido!", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
                         passText.setText("");
                         confText.setText("");
                         return;
                     }
-                    if (!telaCadastro.validarSenha(senha)) {
+                    if (!TelaCadastro.validarSenha(senha)) {
                         JOptionPane.showMessageDialog(panel, "Senha inválida. Deve conter no mínimo 8 caracteres!", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
                         passText.setText("");
                         confText.setText("");
@@ -114,7 +114,7 @@ public class GUICadastro {
                         confText.setText("");
                         return;
                     }
-                    if (!telaCadastro.validarUsuario(nome)) {
+                    if (!TelaCadastro.validarUsuario(nome)) {
                         JOptionPane.showMessageDialog(panel, "Nome de usuário deve ter pelo menos 4 caracteres!", "Erro de Validação", JOptionPane.ERROR_MESSAGE);
                         passText.setText("");
                         confText.setText("");
@@ -123,8 +123,8 @@ public class GUICadastro {
 
                     Criptografia criptografia = new Criptografia();
                     SecretKey chave = criptografia.geradorChave();
-                    String senhaHash = telaCadastro.hashSenha(senha);
-                    String senhaCriptografada = criptografia.criptografa(senhaHash, chave);
+                    String senhaHash = TelaCadastro.hashSenha(senha);
+                    String senhaCriptografada = Criptografia.criptografa(senhaHash, chave);
 
                     if(telaCadastro.funcionamentoTelaCadastro(nome, email, senhaCriptografada, chave)){
                         JOptionPane.showMessageDialog(panel, "Cadastro realizado com sucesso!", "Cadastrado", JOptionPane.INFORMATION_MESSAGE);
@@ -132,10 +132,14 @@ public class GUICadastro {
                         userText.setText("");
                         passText.setText("");
                         confText.setText("");
+                        new GUILogin();
+                        (SwingUtilities.getWindowAncestor(panel)).dispose();
+                    }else{
+                        JOptionPane.showMessageDialog(panel, "Erro no cadastro, verifique se o email já está cadastrado!", "Erro de Cadastro", JOptionPane.ERROR_MESSAGE);
                     }
 
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(panel, "Algo deu errado, reinicie o programa!", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

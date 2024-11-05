@@ -13,34 +13,34 @@ public class FuncoesBD {
     }
   
     public boolean insereUsuario(Usuario usuario, SecretKey chave) {
+
         query = "INSERT INTO Usuario (nome, email, senha) VALUES (?, ?, ?)";
         try {
             ps = conexao.getConexao().prepareStatement(query);
             ps.setString(1, usuario.getNome());
             ps.setString(2, usuario.getEmail());
-            ps.setString(3, usuario.getSenha());
+            ps.setString(3, Criptografia.descriptografa(usuario.getSenha(), chave) );
             ps.executeUpdate();
             return true;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return false;
         }
     }
 
     
-    public String retornaNomeUsuario(int idUsuario) {
-        String nome = null;
-        query = "SELECT nome FROM Usuario WHERE idUsuario = ?";
+    public boolean retornaUsuario(String email, String senha, SecretKey chave) {
+
+        query = "SELECT * FROM Usuario WHERE email = ? AND senha = ?";
         try {
             ps = conexao.getConexao().prepareStatement(query);
-            ps.setInt(1, idUsuario);
+            ps.setString(1, email);
+            ps.setString(2, Criptografia.descriptografa(senha,chave));
             rs = ps.executeQuery();
-            if (rs.next()) {
-                nome = rs.getString("nome");
-            }
+            return rs.next();
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar nome do usuário: " + e.getMessage());
+            return false;
         }
-        return nome;
+
     }
 
     
@@ -50,13 +50,12 @@ public class FuncoesBD {
             ps = conexao.getConexao().prepareStatement(query);
             ps.setString(1, nomeGrupo);
             ps.executeUpdate();
-            System.out.println("Grupo criado com sucesso.");
         } catch (SQLException e) {
             System.err.println("Erro ao criar grupo: " + e.getMessage());
         }
     }
 
-    public void insereSenha(int idUsuario, String nomeAplicacao, String emailLogin, String senha) {
+    public boolean insereSenha(int idUsuario, String nomeAplicacao, String emailLogin, String senha) {
         query = "INSERT INTO Senhas (nomeAplicacao, emailLogin, senha) VALUES (?, ?, ?)";
         int idSenha = -1;
         try {
@@ -70,8 +69,10 @@ public class FuncoesBD {
                 idSenha = generatedKeys.getInt(1);
                 adicionaSenhaAoUsuario(idUsuario, idSenha);
             }
+            return true;
         } catch (SQLException e) {
             System.err.println("Erro ao inserir senha: " + e.getMessage());
+            return false;
         }
     }
 

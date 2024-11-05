@@ -6,33 +6,48 @@ import java.util.Base64;
 public class Criptografia {
     private static SecretKey chave;
 
-    public Criptografia() throws Exception{
+    public Criptografia() {
         chave = null;
     }
 
-    public SecretKey geradorChave() throws Exception {
-        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-        keyGen.init(128);
-        chave = keyGen.generateKey();
-        return chave;
+    public SecretKey geradorChave() {
+        try{
+            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(128);
+            chave = keyGen.generateKey();
+            return chave;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public SecretKey getChave(){
         return chave;
     }
 
-    public static String criptografa(String str, SecretKey chave) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.ENCRYPT_MODE, chave);
-        byte[] encryptedData = cipher.doFinal(str.getBytes());
-        return Base64.getEncoder().encodeToString(encryptedData);
+    public static String criptografa(String str, SecretKey chave)  {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, chave);
+            byte[] encryptedData = cipher.doFinal(str.getBytes());
+            return Base64.getEncoder().encodeToString(encryptedData);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public static String descriptografa(String strCriptografada, SecretKey chave) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES");
-        cipher.init(Cipher.DECRYPT_MODE, chave);
-        byte[] decodedData = Base64.getDecoder().decode(strCriptografada);
-        byte[] decryptedData = cipher.doFinal(decodedData);
-        return new String(decryptedData);
+    public static String descriptografa(String strCriptografada, SecretKey chave)  {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, chave);
+            byte[] decodedData = Base64.getDecoder().decode(strCriptografada);
+            byte[] decryptedData = cipher.doFinal(decodedData);
+            return new String(decryptedData);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -70,25 +70,50 @@ public class GUILogin {
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
+
+                    TelaLogin telaLogin = new TelaLogin();
+                    String email = mailText.getText();
+                    String senha = new String(passText.getPassword());
+
+                    if (!TelaLogin.validarEmail(email)) {
+                        JOptionPane.showMessageDialog(panel, "Email e/ou senha inválidos!", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+                        passText.setText("");
+                        return;
+                    }
+                    if (!TelaLogin.validarSenha(senha)) {
+                        JOptionPane.showMessageDialog(panel, "Email e/ou senha inválidos!", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+                        passText.setText("");
+                        return;
+                    }
+
                     Criptografia criptografia = new Criptografia();
                     SecretKey chave = criptografia.geradorChave();
-                    // Terminar implementação da lógica de login
-                    String senha = criptografia.criptografa(new String(passText.getPassword()), chave);
-                    String email = mailText.getText();
+                    String senhaHash = TelaLogin.hashSenha(senha);
+                    String senhaCriptografada = Criptografia.criptografa(senhaHash, chave);
+
+                    if(telaLogin.funcionamentoTelaLogin(email, senhaCriptografada, chave)){
+                        JOptionPane.showMessageDialog(panel, "Login realizado com sucesso!", "Login com sucesso", JOptionPane.INFORMATION_MESSAGE);
+                        mailText.setText("");
+                        passText.setText("");
+                        new GUITelaPrincipal(email);
+                        (SwingUtilities.getWindowAncestor(panel)).dispose();
+                    }else{
+                        JOptionPane.showMessageDialog(panel, "Email e/ou senha inválidos!", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+                    }
                 } catch (Exception ex) {
-                    throw new RuntimeException(ex);
+                    JOptionPane.showMessageDialog(panel, "Algo deu errado, reinicie o programa!", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         recButton.addActionListener(e -> {
-            (SwingUtilities.getWindowAncestor(panel)).dispose();
             new GUIRecuperacao();
+            (SwingUtilities.getWindowAncestor(panel)).dispose();
         });
 
         regButton.addActionListener(e -> {
-            (SwingUtilities.getWindowAncestor(panel)).dispose();
             new GUICadastro();
+            (SwingUtilities.getWindowAncestor(panel)).dispose();
         });
     }
 }
