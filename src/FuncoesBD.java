@@ -1,3 +1,4 @@
+import javax.crypto.SecretKey;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,17 +12,17 @@ public class FuncoesBD {
         conexao = conexao.getInstance();
     }
   
-    public void insereUsuario(String nome, String email, String senha) {
+    public boolean insereUsuario(Usuario usuario, SecretKey chave) {
         query = "INSERT INTO Usuario (nome, email, senha) VALUES (?, ?, ?)";
         try {
             ps = conexao.getConexao().prepareStatement(query);
-            ps.setString(1, nome);
-            ps.setString(2, email);
-            ps.setString(3, senha);
+            ps.setString(1, usuario.getNome());
+            ps.setString(2, usuario.getEmail());
+            ps.setString(3, usuario.getSenha());
             ps.executeUpdate();
-            System.out.println("Usuário inserido com sucesso.");
+            return true;
         } catch (SQLException e) {
-            System.err.println("Erro ao inserir usuário: " + e.getMessage());
+            return false;
         }
     }
 
