@@ -1,4 +1,5 @@
 public class Senha {
+    private int idSenha;
     private String nomeAplicacao;
     private String emailLogin;
     private String senha;
@@ -31,5 +32,13 @@ public class Senha {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public void setIdSenha(int idSenha){
+        this.idSenha = idSenha;
+    }
+
+    public int getIdSenha(){
+        return idSenha;
     }
 }
