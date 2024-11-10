@@ -14,12 +14,12 @@ public class GUICadastro {
         JPanel panel = new JPanel(new GridBagLayout());
         frame.add(panel);
         frame.setLocationRelativeTo(null);
-        placeComponents(panel);
+        guiCadastro(panel);
 
         frame.setVisible(true);
     }
 
-    private void placeComponents(JPanel panel) {
+    private void guiCadastro(JPanel panel) {
         GridBagConstraints grid = new GridBagConstraints();
         Font font = new Font("Arial", Font.PLAIN, 14);
         grid.insets = new Insets(10, 10, 10, 10);
@@ -89,8 +89,9 @@ public class GUICadastro {
         regButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 try {
-                    TelaCadastro telaCadastro = new TelaCadastro();
 
+                    TelaCadastro telaCadastro = new TelaCadastro();
+                    FuncoesMail funcoesMail = new FuncoesMail();
                     String email = mailText.getText();
                     String nome = userText.getText();
                     String senha = new String(passText.getPassword());
@@ -123,19 +124,88 @@ public class GUICadastro {
 
                     Criptografia criptografia = new Criptografia();
                     SecretKey chave = criptografia.geradorChave();
-                    String senhaHash = TelaCadastro.hashSenha(senha);
-                    String senhaCriptografada = Criptografia.criptografa(senhaHash, chave);
 
-                    if(telaCadastro.funcionamentoTelaCadastro(nome, email, senhaCriptografada, chave)){
-                        JOptionPane.showMessageDialog(panel, "Cadastro realizado com sucesso!", "Cadastrado", JOptionPane.INFORMATION_MESSAGE);
-                        mailText.setText("");
-                        userText.setText("");
-                        passText.setText("");
-                        confText.setText("");
-                        new GUILogin();
-                        (SwingUtilities.getWindowAncestor(panel)).dispose();
+                    String senhaCriptografada = Criptografia.criptografa(senha, chave);
+
+                    if(!telaCadastro.verificaEmail(email)){
+                        String codEmail = funcoesMail.enviarEmail(email,"Código Cadastro");
+                        JOptionPane.showMessageDialog(panel, "Email enviado para confimação!", "Email", JOptionPane.INFORMATION_MESSAGE);
+                        guiEmail(panel, nome, email, senhaCriptografada, chave, codEmail);
                     }else{
                         JOptionPane.showMessageDialog(panel, "Erro no cadastro, verifique se o email já está cadastrado!", "Erro de Cadastro", JOptionPane.ERROR_MESSAGE);
+                    }
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(panel, "Algo deu errado, reinicie o programa!", "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+    }
+
+    private void guiEmail(JPanel panel, String nome, String email, String senhaCriptografada, SecretKey chave, String codEmail) {
+        panel.removeAll();
+        GridBagConstraints grid = new GridBagConstraints();
+        Font font = new Font("Arial", Font.PLAIN, 14);
+        grid.insets = new Insets(10, 10, 10, 10);
+        grid.fill = GridBagConstraints.HORIZONTAL;
+
+        JLabel mailLabel = new JLabel("         Código enviado por email!");
+        grid.gridx = 0;
+        grid.gridy = 0;
+        grid.gridwidth = 3;
+        mailLabel.setFont(font);
+        panel.add(mailLabel, grid);
+
+        JLabel codeLabel = new JLabel("Código:");
+        grid.gridx = 0;
+        grid.gridy = 1;
+        grid.gridwidth = 1;
+        codeLabel.setFont(font);
+        panel.add(codeLabel, grid);
+
+        JTextField codeText = new JTextField(15);
+        grid.gridx = 1;
+        grid.gridy = 1;
+        grid.gridwidth = 1;
+        codeText.setFont(font);
+        panel.add(codeText, grid);
+
+        JButton codeButton = new JButton("Validar");
+        grid.gridx = 0;
+        grid.gridy = 2;
+        grid.gridwidth = 3;
+        codeButton.setFont(font);
+        panel.add(codeButton, grid);
+
+        JButton returnButton = new JButton("Voltar");
+        grid.gridx = 0;
+        grid.gridy = 3;
+        grid.gridwidth = 3;
+        returnButton.setFont(font);
+        panel.add(returnButton, grid);
+
+        panel.revalidate();
+        panel.repaint();
+
+        returnButton.addActionListener(e -> {
+            new GUIRecuperacao();
+            (SwingUtilities.getWindowAncestor(panel)).dispose();
+        });
+
+        codeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    TelaCadastro telaCadastro = new TelaCadastro();
+                    if(codeText.getText().length() != 6 || !codeText.getText().equals(codEmail)){
+                        JOptionPane.showMessageDialog(panel, "Código inválido!", "Código inválido", JOptionPane.ERROR_MESSAGE);
+                    }else {
+                        if (telaCadastro.funcionamentoTelaCadastro(nome, email, senhaCriptografada, chave)) {
+                            JOptionPane.showMessageDialog(panel, "Cadastro realizado com sucesso!", "Cadastrado", JOptionPane.INFORMATION_MESSAGE);
+                            new GUILogin();
+                            SwingUtilities.getWindowAncestor(panel).dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(panel, "Erro no cadastro, verifique se o email já está cadastrado!", "Erro de Cadastro", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
 
                 } catch (Exception ex) {

@@ -1,16 +1,18 @@
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.crypto.SecretKey;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class TelaCadastro {
     public boolean funcionamentoTelaCadastro (String nome, String email, String senha, SecretKey chave) {
+        String senhaDesc = Criptografia.descriptografa(senha,chave);
 
-        Usuario usuario = new Usuario(nome, email, senha);
+        Usuario usuario = new Usuario(nome, email, hashSenha(senhaDesc));
         FuncoesBD funcoesBD = new FuncoesBD();
-        return funcoesBD.insereUsuario(usuario, chave);
+        return funcoesBD.insereUsuario(usuario);
 
     }
 
@@ -24,11 +26,21 @@ public class TelaCadastro {
     }
 
     public static String hashSenha(String senha) {
-        String salt = BCrypt.gensalt(12);
-        return BCrypt.hashpw(senha, salt);
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(senha.getBytes());
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public static boolean validarUsuario(String usuario){
         return usuario.length() >= 4;
+    }
+
+    public boolean verificaEmail(String email){
+        return new FuncoesBD().verificaEmailExistente(email);
     }
 }
