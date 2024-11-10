@@ -2,6 +2,9 @@ import javax.crypto.SecretKey;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FuncoesBD {
     private Conexao conexao;
@@ -55,24 +58,45 @@ public class FuncoesBD {
         }
     }
 
-    public boolean insereSenha(int idUsuario, String nomeAplicacao, String emailLogin, String senha) {
-        query = "INSERT INTO Senhas (nomeAplicacao, emailLogin, senha) VALUES (?, ?, ?)";
-        int idSenha = -1;
+    public int retornaIdUsuario(String email){
+        int idUsuario = -1;
+        query = "SELECT idUsuario FROM Usuario WHERE email = ?";
+
         try {
             ps = conexao.getConexao().prepareStatement(query);
-            ps.setString(1, nomeAplicacao);
-            ps.setString(2, emailLogin);
-            ps.setString(3, senha);
+            ps.setString(1, email);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                idUsuario = rs.getInt("idUsuario");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return idUsuario;
+    }
+
+    public int insereSenha(String email, Senha senha) {
+        query = "INSERT INTO Senhas (nomeAplicacao, emailLogin, senha) VALUES (?, ?, ?)";
+
+        int idSenha = -1;
+        try {
+            ps = conexao.getConexao().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, senha.getNomeAplicacao());
+            ps.setString(2, senha.getEmailLogin());
+            ps.setString(3, senha.getSenha());
+
             ps.executeUpdate();
             ResultSet generatedKeys = ps.getGeneratedKeys();
+
             if (generatedKeys.next()) {
                 idSenha = generatedKeys.getInt(1);
-                adicionaSenhaAoUsuario(idUsuario, idSenha);
+                adicionaSenhaAoUsuario(retornaIdUsuario(email), idSenha);
+
             }
-            return true;
+            return idSenha;
         } catch (SQLException e) {
-            System.err.println("Erro ao inserir senha: " + e.getMessage());
-            return false;
+            return 0;
         }
     }
 
@@ -112,6 +136,27 @@ public class FuncoesBD {
         }
     }
 
+    public Senha retornaSenha(int idSenha){
+        Senha senha = null;
+        query = "SELECT * FROM Senhas WHERE idSenha = ?";
+        try {
+            ps = conexao.getConexao().prepareStatement(query);
+            ps.setInt(1, idSenha);
+            rs = ps.executeQuery();
+            if (rs.next()) {
+                senha = new Senha(
+                        rs.getString("nomeAplicacao"),
+                        rs.getString("emailLogin"),
+                        rs.getString("senha")
+                );
+                senha.setIdSenha(Integer.parseInt(rs.getString("idSenha")));
+            }
+        } catch (SQLException e) {
+            return senha;
+        }
+        return senha;
+    }
+
     public void adicionaSenhaAoGrupo(int idGrupo, int idSenha) {
         query = "INSERT INTO Grupo_Senha (idGrupo, idSenha) VALUES (?, ?)";
         try {
@@ -128,13 +173,38 @@ public class FuncoesBD {
         query = "UPDATE Usuario SET senha = ? WHERE email = ?";
         try {
             ps = conexao.getConexao().prepareStatement(query);
-            ps.setString(1, email);
-            ps.setString(2, senha);
+            ps.setString(1, senha);
+            ps.setString(2, email);
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
             return false;
         }
     }
+
+    public List<Integer> retornarIdsSenhas(String email) {
+        List<Integer> idsSenhas = new ArrayList<>();
+        int idUsuario = retornaIdUsuario(email);
+
+        if (idUsuario != -1) {
+            query = "SELECT idSenha FROM Usuario_Senha WHERE idUsuario = ?";
+
+            try {
+                ps = conexao.getConexao().prepareStatement(query);
+                ps.setInt(1, idUsuario);
+                rs = ps.executeQuery();
+
+                while (rs.next()) {
+                    idsSenhas.add(rs.getInt("idSenha"));
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return idsSenhas;
+    }
+
 
 }
