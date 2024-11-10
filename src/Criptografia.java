@@ -22,9 +22,6 @@ public class Criptografia {
         return null;
     }
 
-    public SecretKey getChave(){
-        return chave;
-    }
 
     public static String criptografa(String str, SecretKey chave)  {
         try {

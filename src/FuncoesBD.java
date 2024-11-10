@@ -12,14 +12,14 @@ public class FuncoesBD {
         conexao = conexao.getInstance();
     }
   
-    public boolean insereUsuario(Usuario usuario, SecretKey chave) {
+    public boolean insereUsuario(Usuario usuario) {
 
         query = "INSERT INTO Usuario (nome, email, senha) VALUES (?, ?, ?)";
         try {
             ps = conexao.getConexao().prepareStatement(query);
             ps.setString(1, usuario.getNome());
             ps.setString(2, usuario.getEmail());
-            ps.setString(3, Criptografia.descriptografa(usuario.getSenha(), chave) );
+            ps.setString(3, usuario.getSenha());
             ps.executeUpdate();
             return true;
         } catch (Exception e) {
@@ -28,13 +28,13 @@ public class FuncoesBD {
     }
 
     
-    public boolean retornaUsuario(String email, String senha, SecretKey chave) {
+    public boolean retornaUsuario(String email, String senha) {
 
         query = "SELECT * FROM Usuario WHERE email = ? AND senha = ?";
         try {
             ps = conexao.getConexao().prepareStatement(query);
             ps.setString(1, email);
-            ps.setString(2, Criptografia.descriptografa(senha,chave));
+            ps.setString(2, senha);
             rs = ps.executeQuery();
             return rs.next();
         } catch (SQLException e) {
@@ -83,7 +83,6 @@ public class FuncoesBD {
             ps.setInt(1, idGrupo);
             ps.setInt(2, idUsuario);
             ps.executeUpdate();
-            System.out.println("Usuário adicionado ao grupo com sucesso.");
         } catch (SQLException e) {
             System.err.println("Erro ao adicionar usuário ao grupo: " + e.getMessage());
         }
@@ -96,9 +95,20 @@ public class FuncoesBD {
             ps.setInt(1, idUsuario);
             ps.setInt(2, idSenha);
             ps.executeUpdate();
-            System.out.println("Senha associada ao usuário com sucesso.");
         } catch (SQLException e) {
             System.err.println("Erro ao associar senha ao usuário: " + e.getMessage());
+        }
+    }
+
+    public boolean verificaEmailExistente(String email){
+        query = "SELECT * FROM Usuario WHERE email = ?";
+        try {
+            ps = conexao.getConexao().prepareStatement(query);
+            ps.setString(1, email);
+            rs = ps.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            return true;
         }
     }
 
@@ -109,9 +119,21 @@ public class FuncoesBD {
             ps.setInt(1, idGrupo);
             ps.setInt(2, idSenha);
             ps.executeUpdate();
-            System.out.println("Senha associada ao grupo com sucesso.");
         } catch (SQLException e) {
             System.err.println("Erro ao associar senha ao grupo: " + e.getMessage());
+        }
+    }
+
+    public boolean updateSenha(String email, String senha){
+        query = "UPDATE Usuario SET senha = ? WHERE email = ?";
+        try {
+            ps = conexao.getConexao().prepareStatement(query);
+            ps.setString(1, email);
+            ps.setString(2, senha);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            return false;
         }
     }
 

@@ -1,4 +1,6 @@
 import java.security.SecureRandom;
+
+
 public class GeradorSenhas {
     private static final String letras_min = "abcdefghijklmnopqrstuvwxyz";
     private static final String letras_mai = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
