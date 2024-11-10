@@ -3,10 +3,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class GUILogin {
 
     private JPanel panel;
+    private int tentativasFalhas = 0;
+    private static final int MAX_TENTATIVAS = 3;
+    private static final int TEMPO_BLOQUEIO = 30000;
+    private boolean bloqueado = false;
 
     public GUILogin() {
         JFrame frame = new JFrame("Login");
@@ -69,8 +75,12 @@ public class GUILogin {
 
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                try {
+                if (bloqueado) {
+                    JOptionPane.showMessageDialog(panel, "Conta bloqueada temporariamente. Tente novamente em 1 minuto.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
+                try {
                     TelaLogin telaLogin = new TelaLogin();
                     String email = mailText.getText();
                     String senha = new String(passText.getPassword());
@@ -78,11 +88,15 @@ public class GUILogin {
                     if (!TelaLogin.validarEmail(email)) {
                         JOptionPane.showMessageDialog(panel, "Email e/ou senha inválidos!", "Erro de Login", JOptionPane.ERROR_MESSAGE);
                         passText.setText("");
+                        tentativasFalhas++;
+                        verificarBloqueio();
                         return;
                     }
                     if (!TelaLogin.validarSenha(senha)) {
                         JOptionPane.showMessageDialog(panel, "Email e/ou senha inválidos!", "Erro de Login", JOptionPane.ERROR_MESSAGE);
                         passText.setText("");
+                        tentativasFalhas++;
+                        verificarBloqueio();
                         return;
                     }
 
@@ -92,9 +106,12 @@ public class GUILogin {
 
                     if (telaLogin.funcionamentoTelaLogin(email, senhaCriptografada, chave)) {
                         String codEmail = telaLogin.enviaEmail(email);
+                        tentativasFalhas = 0;
                         guiEmail(panel, email, codEmail);
                     } else {
-                        JOptionPane.showMessageDialog(panel, "Email e/ou senha inválidos!", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+                        tentativasFalhas++;
+                        verificarBloqueio();
+                        JOptionPane.showMessageDialog(panel, "Email e/ou senha inválidos! Tentativa " + tentativasFalhas + " de " + MAX_TENTATIVAS, "Erro de Login", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(panel, "Algo deu errado, reinicie o programa!", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -111,6 +128,23 @@ public class GUILogin {
             new GUICadastro();
             (SwingUtilities.getWindowAncestor(panel)).dispose();
         });
+    }
+
+    private void verificarBloqueio() {
+        if (tentativasFalhas >= MAX_TENTATIVAS) {
+            bloqueado = true;
+            JOptionPane.showMessageDialog(panel, "Conta bloqueada por 1 minuto devido a tentativas falhas.", "Bloqueio Temporário", JOptionPane.WARNING_MESSAGE);
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    bloqueado = false;
+                    tentativasFalhas = 0;
+                    JOptionPane.showMessageDialog(panel, "Conta desbloqueada. Você pode tentar novamente.", "Conta Desbloqueada", JOptionPane.INFORMATION_MESSAGE);
+                }
+            }, TEMPO_BLOQUEIO);
+        }
     }
 
     private void guiEmail(JPanel panel, String email, String codEmail) {
@@ -168,7 +202,7 @@ public class GUILogin {
                 try {
                     if (codeText.getText().length() != 6 || !codeText.getText().equals(codEmail)) {
                         JOptionPane.showMessageDialog(panel, "Código inválido!", "Código inválido", JOptionPane.ERROR_MESSAGE);
-                    }else {
+                    } else {
                         JOptionPane.showMessageDialog(panel, "Login realizado com sucesso!", "Login com sucesso", JOptionPane.INFORMATION_MESSAGE);
                         new GUITelaPrincipal(email);
                         (SwingUtilities.getWindowAncestor(panel)).dispose();
