@@ -231,6 +231,7 @@ public class GUIRecuperacao {
                 if(telaRecuperacao.funcionamentoTelaRecuperacao(email, senhaCriptografada, chave)) {
                     JOptionPane.showMessageDialog(panel, "Senha alterada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     new GUILogin();
+                    (SwingUtilities.getWindowAncestor(panel)).dispose();
                 }else{
                     JOptionPane.showMessageDialog(panel, "Ocorreu um erro tente novamente!", "Erro", JOptionPane.ERROR_MESSAGE);
                 }

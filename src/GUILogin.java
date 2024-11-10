@@ -10,7 +10,7 @@ public class GUILogin {
 
     private JPanel panel;
     private int tentativasFalhas = 0;
-    private static final int MAX_TENTATIVAS = 3;
+    private static final int MAX_TENTATIVAS = 5;
     private static final int TEMPO_BLOQUEIO = 30000;
     private boolean bloqueado = false;
 
@@ -76,7 +76,7 @@ public class GUILogin {
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (bloqueado) {
-                    JOptionPane.showMessageDialog(panel, "Conta bloqueada temporariamente. Tente novamente em 1 minuto.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(panel, "Conta bloqueada temporariamente. Tente novamente em 30 segundos.", "Erro de Login", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -133,7 +133,7 @@ public class GUILogin {
     private void verificarBloqueio() {
         if (tentativasFalhas >= MAX_TENTATIVAS) {
             bloqueado = true;
-            JOptionPane.showMessageDialog(panel, "Conta bloqueada por 1 minuto devido a tentativas falhas.", "Bloqueio Temporário", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(panel, "Conta bloqueada por 30 segundos devido a tentativas falhas.", "Bloqueio Temporário", JOptionPane.WARNING_MESSAGE);
 
             Timer timer = new Timer();
             timer.schedule(new TimerTask() {
@@ -204,7 +204,7 @@ public class GUILogin {
                         JOptionPane.showMessageDialog(panel, "Código inválido!", "Código inválido", JOptionPane.ERROR_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(panel, "Login realizado com sucesso!", "Login com sucesso", JOptionPane.INFORMATION_MESSAGE);
-                        new GUITelaPrincipal(email);
+                        new GUITelaPrincipal(email).setVisible(true);
                         (SwingUtilities.getWindowAncestor(panel)).dispose();
                     }
 
